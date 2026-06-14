@@ -68,12 +68,14 @@ export KUBECONFIG=$(pwd)/kubeconfig.yaml       # written by terraform apply
 | `gcp` | GKE, `asia-southeast1-a` | Zonal GKE | `e2-medium` 2vCPU/4GB | $30/mo |
 | `aws` | EKS, `ap-southeast-1` | EKS + managed node group | `t3.medium` 2vCPU/4GB | $30/mo+ |
 | `do` | DigitalOcean `sgp1` | DOKS | `s-2vcpu-4gb` 2vCPU/4GB | $24/mo |
+| `hetzner` | Hetzner Cloud `nbg1` | Single server + k3s | `cx21` 2vCPU/4GB | ~$6/mo |
 
 **Per-provider prerequisites:**
 - **Civo** — `civo_token` + optionally tighten `admin_cidrs`
 - **GCP** — `gcp_project` + either `gcp_credentials_file` or `gcloud auth application-default login`; install `gke-gcloud-auth-plugin` (`gcloud components install gke-gcloud-auth-plugin`)
 - **AWS** — `aws_access_key`/`aws_secret_key` or ambient env vars (`AWS_ACCESS_KEY_ID`, etc.); install AWS CLI (`brew install awscli`); uses the default VPC
 - **DigitalOcean** — `do_token`; DOKS version is auto-resolved to latest stable
+- **Hetzner** — `hcloud_token` + SSH key paths (`hetzner_ssh_public_key_file`, `hetzner_ssh_private_key_file`); k3s is installed via cloud-init on a plain Ubuntu 24.04 server; kubeconfig is extracted via SSH 90s after server creation; `admin_cidrs` also restricts SSH (port 22) — set it to your IP
 
 **Terraform files:**
 
@@ -86,10 +88,13 @@ export KUBECONFIG=$(pwd)/kubeconfig.yaml       # written by terraform apply
 | `cluster_gcp.tf` | GKE cluster + node pool |
 | `cluster_aws.tf` | IAM roles + EKS cluster + managed node group |
 | `cluster_do.tf` | DOKS cluster with auto-resolved version |
+| `cluster_hetzner.tf` | Hetzner firewall + server + k3s (via cloud-init) + kubeconfig via `null_resource` SSH |
 | `helm.tf` | `kubernetes_namespace`, nginx-ingress, cert-manager, ClusterIssuer |
 | `outputs.tf` | Uses `try()` to resolve active cluster across all providers |
 
-**How multi-cloud works** — each cluster file uses `count = var.cloud_provider == "<x>" ? 1 : 0`, so only the active provider's resources are created. Each cluster file writes `kubeconfig.yaml` (named `kubeconfig_<provider>` to avoid conflicts). The kubernetes/helm providers use `config_path = "${path.module}/kubeconfig.yaml"` so they work with any provider. `helm.tf` depends on all four kubeconfig resources; inactive ones (count=0) are no-ops.
+**How multi-cloud works** — each cluster file uses `count = var.cloud_provider == "<x>" ? 1 : 0`, so only the active provider's resources are created. Each cluster file writes `kubeconfig.yaml` (named `kubeconfig_<provider>` to avoid conflicts; Hetzner uses a `null_resource` instead of `local_sensitive_file` because the kubeconfig is pulled via SSH). The kubernetes/helm providers use `config_path = "${path.module}/kubeconfig.yaml"` so they work with any provider. `helm.tf` depends on all five kubeconfig resources; inactive ones (count=0) are no-ops.
+
+**Hetzner specifics** — this is the only provider that creates a raw server rather than a managed cluster. k3s ships with Klipper LB built in, so LoadBalancer services receive the node's public IP without needing the hcloud cloud-controller-manager. Traefik is disabled at install time (`--disable traefik`) since nginx-ingress is used instead. The kubeconfig is extracted 90s after server creation via a `local-exec` SSH command that replaces `127.0.0.1` with the server's public IP.
 
 ## Secrets setup (before first deploy)
 

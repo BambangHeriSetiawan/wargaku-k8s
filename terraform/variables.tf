@@ -6,8 +6,8 @@ variable "cloud_provider" {
   default     = "civo"
 
   validation {
-    condition     = contains(["civo", "gcp", "aws", "do"], var.cloud_provider)
-    error_message = "cloud_provider must be one of: civo, gcp, aws, do."
+    condition     = contains(["civo", "gcp", "aws", "do", "hetzner"], var.cloud_provider)
+    error_message = "cloud_provider must be one of: civo, gcp, aws, do, hetzner."
   }
 }
 
@@ -148,4 +148,37 @@ variable "do_node_size" {
   description = "DigitalOcean Droplet size for DOKS nodes (s-2vcpu-4gb = 2 vCPU, 4 GB, ~$24/mo)."
   type        = string
   default     = "s-2vcpu-4gb"
+}
+
+# ── Hetzner Cloud / k3s ───────────────────────────────────────────────────────
+
+variable "hcloud_token" {
+  description = "Hetzner Cloud API token — https://console.hetzner.cloud → project → Security → API Tokens."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "hetzner_location" {
+  description = "Hetzner datacenter location. Options: nbg1 (Nuremberg), fsn1 (Falkenstein), hel1 (Helsinki), ash (Ashburn), hil (Hillsboro)."
+  type        = string
+  default     = "nbg1"
+}
+
+variable "hetzner_server_type" {
+  description = "Hetzner server type. cx21 = 2 vCPU, 4 GB RAM, ~$6/mo. cpx21 = 3 vCPU AMD, 4 GB, ~$6/mo."
+  type        = string
+  default     = "cx21"
+}
+
+variable "hetzner_ssh_public_key_file" {
+  description = "Path to the SSH public key to install on the Hetzner server (e.g. ~/.ssh/id_ed25519.pub)."
+  type        = string
+  default     = "~/.ssh/id_ed25519.pub"
+}
+
+variable "hetzner_ssh_private_key_file" {
+  description = "Path to the SSH private key used to pull kubeconfig from the server after k3s starts."
+  type        = string
+  default     = "~/.ssh/id_ed25519"
 }

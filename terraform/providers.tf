@@ -23,6 +23,11 @@ provider "digitalocean" {
   token = var.do_token
 }
 
+# ── Hetzner Cloud ─────────────────────────────────────────────────────────────
+provider "hcloud" {
+  token = var.hcloud_token
+}
+
 # ── Kubernetes & Helm ─────────────────────────────────────────────────────────
 # All cluster resources write their kubeconfig to kubeconfig.yaml so a single
 # file-based config works regardless of which cloud_provider is active.

@@ -10,6 +10,7 @@ resource "kubernetes_namespace" "estathub" {
     local_sensitive_file.kubeconfig_gcp,
     local_sensitive_file.kubeconfig_aws,
     local_sensitive_file.kubeconfig_do,
+    null_resource.kubeconfig_hetzner,
   ]
 }
 
@@ -50,6 +51,7 @@ resource "helm_release" "ingress_nginx" {
     local_sensitive_file.kubeconfig_gcp,
     local_sensitive_file.kubeconfig_aws,
     local_sensitive_file.kubeconfig_do,
+    null_resource.kubeconfig_hetzner,
   ]
 }
 

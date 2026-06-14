@@ -5,6 +5,7 @@ locals {
     google_container_cluster.main[0].name,
     aws_eks_cluster.main[0].name,
     digitalocean_kubernetes_cluster.main[0].name,
+    hcloud_server.main[0].name,
     "unknown"
   )
 }
@@ -15,15 +16,16 @@ output "cloud_provider" {
 }
 
 output "cluster_name" {
-  description = "Kubernetes cluster name"
+  description = "Kubernetes cluster / server name"
   value       = local.active_cluster_name
 }
 
 output "cluster_id" {
-  description = "Cluster ID (Civo and DigitalOcean only)"
+  description = "Cluster or server ID"
   value = try(
     civo_kubernetes_cluster.main[0].id,
     digitalocean_kubernetes_cluster.main[0].id,
+    tostring(hcloud_server.main[0].id),
     "n/a"
   )
 }
@@ -35,6 +37,7 @@ output "api_endpoint" {
     "https://${google_container_cluster.main[0].endpoint}",
     aws_eks_cluster.main[0].endpoint,
     digitalocean_kubernetes_cluster.main[0].endpoint,
+    "https://${hcloud_server.main[0].ipv4_address}:6443",
     "unknown"
   )
 }
@@ -45,7 +48,7 @@ output "kubeconfig_path" {
 }
 
 output "kubeconfig" {
-  description = "Raw kubeconfig YAML (Civo and DigitalOcean). For GCP/AWS the kubeconfig uses exec-based auth — read kubeconfig.yaml directly."
+  description = "Raw kubeconfig YAML (Civo and DigitalOcean). GCP/AWS/Hetzner use exec-based auth — read kubeconfig.yaml directly."
   sensitive   = true
   value = try(
     civo_kubernetes_cluster.main[0].kubeconfig,
@@ -56,11 +59,12 @@ output "kubeconfig" {
 
 output "node_size" {
   description = "Node size / instance type in use"
-  value = try(
-    var.node_size,          # Civo
-    var.gcp_node_machine_type,
-    var.aws_node_instance_type,
-    var.do_node_size,
+  value = (
+    var.cloud_provider == "civo"    ? var.node_size :
+    var.cloud_provider == "gcp"     ? var.gcp_node_machine_type :
+    var.cloud_provider == "aws"     ? var.aws_node_instance_type :
+    var.cloud_provider == "do"      ? var.do_node_size :
+    var.cloud_provider == "hetzner" ? var.hetzner_server_type :
     "unknown"
   )
 }
