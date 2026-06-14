@@ -12,7 +12,7 @@ Kubernetes manifests and Terraform IaC for **EstahHub** — an Indonesian real e
 - **redis:7-alpine** — Deployment with `emptyDir` (intentional: cache + rate-limit only)
 - Full monitoring stack: Prometheus, Grafana, Alertmanager, and four exporters
 
-All workloads run in the `estathub` namespace.
+All workloads run in the `wargaku` namespace.
 
 ## Common kubectl commands
 
@@ -33,18 +33,18 @@ kubectl apply -f ingress/cert-issuer.yaml
 kubectl apply -f ingress/ingress.yaml
 
 # Verify
-kubectl get pods -n estathub
-kubectl get ingress -n estathub
-kubectl describe certificate -n estathub
+kubectl get pods -n wargaku
+kubectl get ingress -n wargaku
+kubectl describe certificate -n wargaku
 
 # Run DB migrations (one-off)
 kubectl run migrate --image=<registry>/wargaku-go:latest \
-  -n estathub --restart=Never \
+  -n wargaku --restart=Never \
   --env="DB_HOST=postgres" --env="DB_PORT=5432" \
   --env="DB_NAME=estathub" --env="DB_USER=estathub" \
   --env="DB_PASSWORD=<password>" \
   -- ./wargaku-go migrate-up
-kubectl logs migrate -n estathub && kubectl delete pod migrate -n estathub
+kubectl logs migrate -n wargaku && kubectl delete pod migrate -n wargaku
 ```
 
 ## Terraform (cluster provisioning)
@@ -107,7 +107,7 @@ kubectl apply -f secrets/app-secrets.yaml
 
 # 2. Grafana admin password
 kubectl create secret generic grafana-secrets \
-  --from-literal=GRAFANA_ADMIN_PASSWORD=<password> -n estathub
+  --from-literal=GRAFANA_ADMIN_PASSWORD=<password> -n wargaku
 
 # 3. Alertmanager SMTP
 cp monitoring/alertmanager/secret.yaml.example monitoring/alertmanager/secret.yaml
@@ -118,7 +118,7 @@ kubectl apply -f monitoring/alertmanager/secret.yaml
 # 4. Postgres exporter DSN
 kubectl create secret generic postgres-exporter-secret \
   --from-literal=DATA_SOURCE_NAME="postgresql://estathub:<pw>@postgres:5432/estathub?sslmode=disable" \
-  -n estathub
+  -n wargaku
 ```
 
 The `alertmanager/secret.yaml` and `secrets/app-secrets.yaml` are gitignored — never commit them.

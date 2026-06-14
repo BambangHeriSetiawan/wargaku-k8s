@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: wargaku-api
-  namespace: estathub
+  namespace: wargaku
   labels:
     app: wargaku-api
 spec:

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres-exporter
-  namespace: estathub
+  namespace: wargaku
 spec:
   replicas: 1
   selector:
@@ -36,7 +36,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres-exporter
-  namespace: estathub
+  namespace: wargaku
 spec:
   selector:
     app: postgres-exporter
@@ -46,4 +46,4 @@ spec:
 ---
 # kubectl create secret generic postgres-exporter-secret \
 #   --from-literal=DATA_SOURCE_NAME="postgresql://estathub:<password>@postgres:5432/estathub?sslmode=disable" \
-#   -n estathub
+#   -n wargaku

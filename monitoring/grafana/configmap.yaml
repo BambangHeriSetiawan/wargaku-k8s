@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-provisioning
-  namespace: estathub
+  namespace: wargaku
 data:
   datasources.yml: |
     apiVersion: 1

@@ -1,8 +1,8 @@
 # ── Namespace ─────────────────────────────────────────────────────────────────
 
-resource "kubernetes_namespace" "estathub" {
+resource "kubernetes_namespace" "wargaku" {
   metadata {
-    name = "estathub"
+    name = "wargaku"
   }
 
   depends_on = [

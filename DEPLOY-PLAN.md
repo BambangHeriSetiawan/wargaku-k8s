@@ -165,7 +165,7 @@ kubectl apply -f k8s/secrets/app-secrets.yaml
 # Grafana admin password
 kubectl create secret generic grafana-secrets \
   --from-literal=GRAFANA_ADMIN_PASSWORD=<your-password> \
-  -n estathub
+  -n wargaku
 
 # Alertmanager SMTP (copy + fill secret.yaml.example first)
 cp k8s/monitoring/alertmanager/secret.yaml.example k8s/monitoring/alertmanager/secret.yaml
@@ -175,7 +175,7 @@ kubectl apply -f k8s/monitoring/alertmanager/secret.yaml
 # postgres-exporter DSN
 kubectl create secret generic postgres-exporter-secret \
   --from-literal=DATA_SOURCE_NAME="postgresql://estathub:<password>@postgres:5432/estathub?sslmode=disable" \
-  -n estathub
+  -n wargaku
 ```
 
 ### 6. Deploy Everything
@@ -217,7 +217,7 @@ kubectl get svc -n ingress-nginx
 ```bash
 # One-time job to run migrations
 kubectl run migrate --image=ghcr.io/<your-org>/wargaku-go:latest \
-  -n estathub --restart=Never \
+  -n wargaku --restart=Never \
   --env="DB_HOST=postgres" \
   --env="DB_PORT=5432" \
   --env="DB_NAME=estathub" \
@@ -225,8 +225,8 @@ kubectl run migrate --image=ghcr.io/<your-org>/wargaku-go:latest \
   --env="DB_PASSWORD=<password>" \
   -- ./wargaku-go migrate-up
 
-kubectl logs migrate -n estathub
-kubectl delete pod migrate -n estathub
+kubectl logs migrate -n wargaku
+kubectl delete pod migrate -n wargaku
 ```
 
 ---
@@ -234,9 +234,9 @@ kubectl delete pod migrate -n estathub
 ## Verify
 
 ```bash
-kubectl get pods -n estathub          # all pods Running
-kubectl get ingress -n estathub        # check ADDRESS
-kubectl describe certificate -n estathub  # TLS issued
+kubectl get pods -n wargaku          # all pods Running
+kubectl get ingress -n wargaku        # check ADDRESS
+kubectl describe certificate -n wargaku  # TLS issued
 curl https://api.estathub.id/health   # API health check
 ```
 

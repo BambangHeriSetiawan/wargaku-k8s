@@ -5,7 +5,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: alertmanager-config-template
-  namespace: estathub
+  namespace: wargaku
 data:
   alertmanager.yml.tmpl: |
     global:

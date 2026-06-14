@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-dashboards
-  namespace: estathub
+  namespace: wargaku
 data:
   estathub-overview.json: |
     {
