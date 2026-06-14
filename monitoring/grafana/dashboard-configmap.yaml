@@ -4,7 +4,7 @@ metadata:
   name: grafana-dashboards
   namespace: wargaku
 data:
-  estathub-overview.json: |
+  wargaku-overview.json: |
     {
       "__inputs": [],
       "__requires": [
@@ -19,13 +19,13 @@ data:
       "links": [],
       "refresh": "30s",
       "schemaVersion": 38,
-      "tags": ["estathub", "overview"],
+      "tags": ["wargaku", "overview"],
       "templating": { "list": [] },
       "time": { "from": "now-1h", "to": "now" },
       "timepicker": {},
       "timezone": "Asia/Jakarta",
       "title": "EstateHub — Overview",
-      "uid": "estathub-overview",
+      "uid": "wargaku-overview",
       "version": 1,
       "panels": [
         {
@@ -68,7 +68,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(rate(http_requests_total{job=\"estathub-api\"}[5m]))",
+              "expr": "sum(rate(http_requests_total{job=\"wargaku-api\"}[5m]))",
               "legendFormat": "req/s",
               "refId": "A"
             }
@@ -109,7 +109,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(rate(http_requests_total{job=\"estathub-api\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"estathub-api\"}[5m])) * 100",
+              "expr": "sum(rate(http_requests_total{job=\"wargaku-api\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"wargaku-api\"}[5m])) * 100",
               "legendFormat": "error %",
               "refId": "A"
             }
@@ -148,7 +148,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"estathub-api\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"wargaku-api\"}[5m])) by (le))",
               "legendFormat": "p95",
               "refId": "A"
             }
@@ -187,7 +187,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "go_goroutines{job=\"estathub-api\"}",
+              "expr": "go_goroutines{job=\"wargaku-api\"}",
               "legendFormat": "goroutines",
               "refId": "A"
             }
@@ -237,19 +237,19 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(rate(http_requests_total{job=\"estathub-api\",status=~\"2..\"}[1m]))",
+              "expr": "sum(rate(http_requests_total{job=\"wargaku-api\",status=~\"2..\"}[1m]))",
               "legendFormat": "2xx",
               "refId": "A"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(rate(http_requests_total{job=\"estathub-api\",status=~\"4..\"}[1m]))",
+              "expr": "sum(rate(http_requests_total{job=\"wargaku-api\",status=~\"4..\"}[1m]))",
               "legendFormat": "4xx",
               "refId": "B"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(rate(http_requests_total{job=\"estathub-api\",status=~\"5..\"}[1m]))",
+              "expr": "sum(rate(http_requests_total{job=\"wargaku-api\",status=~\"5..\"}[1m]))",
               "legendFormat": "5xx",
               "refId": "C"
             }
@@ -283,25 +283,25 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job=\"estathub-api\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{job=\"wargaku-api\"}[5m])) by (le))",
               "legendFormat": "P50",
               "refId": "A"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{job=\"estathub-api\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket{job=\"wargaku-api\"}[5m])) by (le))",
               "legendFormat": "P90",
               "refId": "B"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"estathub-api\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"wargaku-api\"}[5m])) by (le))",
               "legendFormat": "P95",
               "refId": "C"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=\"estathub-api\"}[5m])) by (le))",
+              "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{job=\"wargaku-api\"}[5m])) by (le))",
               "legendFormat": "P99",
               "refId": "D"
             }
@@ -340,7 +340,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "increase(estathub_invoices_created_total[24h])",
+              "expr": "increase(wargaku_invoices_created_total[24h])",
               "legendFormat": "invoices",
               "refId": "A"
             }
@@ -372,7 +372,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "increase(estathub_payments_processed_total{status=\"settlement\"}[24h])",
+              "expr": "increase(wargaku_payments_processed_total{status=\"settlement\"}[24h])",
               "legendFormat": "payments",
               "refId": "A"
             }
@@ -411,7 +411,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "increase(estathub_complaints_submitted_total[24h])",
+              "expr": "increase(wargaku_complaints_submitted_total[24h])",
               "legendFormat": "complaints",
               "refId": "A"
             }
@@ -443,7 +443,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "increase(estathub_announcements_published_total[24h])",
+              "expr": "increase(wargaku_announcements_published_total[24h])",
               "legendFormat": "announcements",
               "refId": "A"
             }
@@ -607,19 +607,19 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "go_memstats_heap_alloc_bytes{job=\"estathub-api\"}",
+              "expr": "go_memstats_heap_alloc_bytes{job=\"wargaku-api\"}",
               "legendFormat": "heap alloc",
               "refId": "A"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "go_memstats_heap_inuse_bytes{job=\"estathub-api\"}",
+              "expr": "go_memstats_heap_inuse_bytes{job=\"wargaku-api\"}",
               "legendFormat": "heap in-use",
               "refId": "B"
             },
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "go_memstats_heap_sys_bytes{job=\"estathub-api\"}",
+              "expr": "go_memstats_heap_sys_bytes{job=\"wargaku-api\"}",
               "legendFormat": "heap sys",
               "refId": "C"
             }

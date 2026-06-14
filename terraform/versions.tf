@@ -43,7 +43,7 @@ terraform {
   # Uncomment to store state remotely (recommended for team use).
   # Terraform Cloud is free for single users:
   # backend "remote" {
-  #   organization = "estathub"
+  #   organization = "wargaku"
   #   workspaces { name = "wargaku-prod" }
   # }
 }

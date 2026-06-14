@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Kubernetes manifests and Terraform IaC for **EstahHub** — an Indonesian real estate platform (`estathub.id`). The application stack is:
 
 - **wargaku-go** — Go Fiber v2 backend API on port 8080 (image: `your-registry/wargaku-go:latest`)
-- **estathub-web** — Next.js 16 standalone frontend on port 3000 (image: `your-registry/estathub-web:latest`)
+- **wargaku-web** — Next.js 16 standalone frontend on port 3000 (image: `your-registry/wargaku-web:latest`)
 - **postgres:16-alpine** — StatefulSet with 5Gi PVC
 - **redis:7-alpine** — Deployment with `emptyDir` (intentional: cache + rate-limit only)
 - Full monitoring stack: Prometheus, Grafana, Alertmanager, and four exporters

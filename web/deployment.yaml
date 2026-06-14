@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: estathub-web
+  name: wargaku-web
   namespace: wargaku
   labels:
-    app: estathub-web
+    app: wargaku-web
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: estathub-web
+      app: wargaku-web
   template:
     metadata:
       labels:
-        app: estathub-web
+        app: wargaku-web
     spec:
       containers:
         - name: web
-          image: your-registry/estathub-web:latest  # replace with your image
+          image: your-registry/wargaku-web:latest  # replace with your image
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -51,11 +51,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: estathub-web
+  name: wargaku-web
   namespace: wargaku
 spec:
   selector:
-    app: estathub-web
+    app: wargaku-web
   ports:
     - name: http
       port: 80

@@ -4,7 +4,7 @@
 
 | Component | Technology | Port |
 |---|---|---|
-| `estathub_web` | Next.js 16 (standalone) | 3000 |
+| `wargaku-web` | Next.js 16 (standalone) | 3000 |
 | `wargaku-go` | Go Fiber v2 | 8080 |
 | Database | PostgreSQL 16 | 5432 |
 | Cache | Redis 7 | 6379 |
@@ -45,7 +45,7 @@ use **Hetzner CX21 (~$6/month) + k3s** with NodePort instead of a LoadBalancer.
 
 ```
 ESTATHUB/
-├── estathub_web/
+├── wargaku-web/
 │   ├── Dockerfile          ← multi-stage Next.js (standalone)
 │   └── next.config.ts      ← output: "standalone" added
 ├── wargaku-go/
@@ -70,7 +70,7 @@ ESTATHUB/
     │   │   └── deployment.yaml             ← includes Service + ServiceAccount
     │   ├── grafana/
     │   │   ├── configmap.yaml              ← datasources + dashboard provisioning
-    │   │   ├── dashboard-configmap.yaml    ← estathub-overview.json
+    │   │   ├── dashboard-configmap.yaml    ← wargaku-overview.json
     │   │   └── deployment.yaml             ← includes Service
     │   ├── alertmanager/
     │   │   ├── configmap.yaml              ← alertmanager.yml template
@@ -141,9 +141,9 @@ docker build -t ghcr.io/<your-org>/wargaku-go:latest .
 docker push ghcr.io/<your-org>/wargaku-go:latest
 
 # Next.js Web
-cd estathub_web
-docker build -t ghcr.io/<your-org>/estathub-web:latest .
-docker push ghcr.io/<your-org>/estathub-web:latest
+cd wargaku-web
+docker build -t ghcr.io/<your-org>/wargaku-web:latest .
+docker push ghcr.io/<your-org>/wargaku-web:latest
 ```
 
 Update `image:` fields in `k8s/api/deployment.yaml` and `k8s/web/deployment.yaml`

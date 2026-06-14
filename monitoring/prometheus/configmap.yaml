@@ -11,7 +11,7 @@ data:
       scrape_timeout: 10s
       external_labels:
         environment: 'production'
-        project: 'estathub'
+        project: 'wargaku'
 
     alerting:
       alertmanagers:
@@ -26,7 +26,7 @@ data:
         static_configs:
           - targets: ['localhost:9090']
 
-      - job_name: 'estathub-api'
+      - job_name: 'wargaku-api'
         static_configs:
           - targets: ['wargaku-api:8080']
         metrics_path: '/metrics'
@@ -54,11 +54,11 @@ data:
 
   api_alerts.yml: |
     groups:
-      - name: estathub_api
+      - name: wargaku_api
         interval: 30s
         rules:
           - alert: APIDown
-            expr: up{job="estathub-api"} == 0
+            expr: up{job="wargaku-api"} == 0
             for: 1m
             labels:
               severity: critical
@@ -69,9 +69,9 @@ data:
 
           - alert: APIHighErrorRate
             expr: |
-              sum(rate(http_requests_total{job="estathub-api", status=~"5.."}[5m]))
+              sum(rate(http_requests_total{job="wargaku-api", status=~"5.."}[5m]))
               /
-              sum(rate(http_requests_total{job="estathub-api"}[5m])) * 100 > 5
+              sum(rate(http_requests_total{job="wargaku-api"}[5m])) * 100 > 5
             for: 5m
             labels:
               severity: critical
@@ -82,9 +82,9 @@ data:
 
           - alert: APIHighClientErrorRate
             expr: |
-              sum(rate(http_requests_total{job="estathub-api", status=~"4.."}[5m]))
+              sum(rate(http_requests_total{job="wargaku-api", status=~"4.."}[5m]))
               /
-              sum(rate(http_requests_total{job="estathub-api"}[5m])) * 100 > 20
+              sum(rate(http_requests_total{job="wargaku-api"}[5m])) * 100 > 20
             for: 10m
             labels:
               severity: warning
@@ -96,7 +96,7 @@ data:
           - alert: APISlowResponseP95
             expr: |
               histogram_quantile(0.95,
-                sum(rate(http_request_duration_seconds_bucket{job="estathub-api"}[5m])) by (le)
+                sum(rate(http_request_duration_seconds_bucket{job="wargaku-api"}[5m])) by (le)
               ) > 2
             for: 10m
             labels:
@@ -109,7 +109,7 @@ data:
           - alert: APISlowResponseP99
             expr: |
               histogram_quantile(0.99,
-                sum(rate(http_request_duration_seconds_bucket{job="estathub-api"}[5m])) by (le)
+                sum(rate(http_request_duration_seconds_bucket{job="wargaku-api"}[5m])) by (le)
               ) > 5
             for: 5m
             labels:
@@ -120,7 +120,7 @@ data:
               description: "99th-percentile response time exceeded 5s."
 
           - alert: TooManyGoroutines
-            expr: go_goroutines{job="estathub-api"} > 5000
+            expr: go_goroutines{job="wargaku-api"} > 5000
             for: 5m
             labels:
               severity: warning
@@ -130,7 +130,7 @@ data:
               description: "Abnormally high goroutine count — possible goroutine leak."
 
           - alert: HighGoHeapUsage
-            expr: go_memstats_heap_inuse_bytes{job="estathub-api"} > 512 * 1024 * 1024
+            expr: go_memstats_heap_inuse_bytes{job="wargaku-api"} > 512 * 1024 * 1024
             for: 10m
             labels:
               severity: warning
@@ -141,7 +141,7 @@ data:
 
           - alert: PaymentWebhookErrors
             expr: |
-              increase(estathub_payments_processed_total{status="failed"}[1h]) > 10
+              increase(wargaku_payments_processed_total{status="failed"}[1h]) > 10
             for: 0m
             labels:
               severity: warning
@@ -152,7 +152,7 @@ data:
 
   infra_alerts.yml: |
     groups:
-      - name: estathub_infrastructure
+      - name: wargaku_infrastructure
         interval: 60s
         rules:
           - alert: PostgreSQLDown
@@ -276,7 +276,7 @@ data:
 
           - alert: ContainerHighCPU
             expr: |
-              rate(container_cpu_usage_seconds_total{name=~"estathub.*"}[5m]) * 100 > 80
+              rate(container_cpu_usage_seconds_total{name=~"wargaku.*"}[5m]) * 100 > 80
             for: 10m
             labels:
               severity: warning
@@ -286,9 +286,9 @@ data:
 
           - alert: ContainerHighMemory
             expr: |
-              container_memory_usage_bytes{name=~"estathub.*"}
+              container_memory_usage_bytes{name=~"wargaku.*"}
               /
-              container_spec_memory_limit_bytes{name=~"estathub.*"} * 100 > 85
+              container_spec_memory_limit_bytes{name=~"wargaku.*"} * 100 > 85
             for: 5m
             labels:
               severity: warning

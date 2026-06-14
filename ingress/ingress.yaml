@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: estathub-ingress
+  name: wargaku-ingress
   namespace: wargaku
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -14,13 +14,13 @@ spec:
     - hosts:
         - estathub.id
         - www.estathub.id
-      secretName: estathub-web-tls
+      secretName: wargaku-web-tls
     - hosts:
         - api.estathub.id
-      secretName: estathub-api-tls
+      secretName: wargaku-api-tls
     - hosts:
         - grafana.estathub.id
-      secretName: estathub-grafana-tls
+      secretName: wargaku-grafana-tls
   rules:
     - host: estathub.id
       http:
@@ -29,7 +29,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: estathub-web
+                name: wargaku-web
                 port:
                   number: 80
     - host: www.estathub.id
@@ -39,7 +39,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: estathub-web
+                name: wargaku-web
                 port:
                   number: 80
     - host: api.estathub.id
