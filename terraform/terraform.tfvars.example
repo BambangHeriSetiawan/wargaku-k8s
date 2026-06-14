@@ -8,7 +8,7 @@ cloud_provider = "civo"
 
 environment = "prod"
 node_count  = 1
-domain      = "estathub.id"
+domain      = "wargaku.id"
 alert_email = "setiawan.heri.bambang@gmail.com"
 
 # Leave k8s_version empty to use the provider's latest stable.
