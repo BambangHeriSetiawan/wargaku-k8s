@@ -6,7 +6,7 @@ data "digitalocean_kubernetes_versions" "main" {
 
 resource "digitalocean_kubernetes_cluster" "main" {
   count   = var.cloud_provider == "do" ? 1 : 0
-  name    = "estathub-${var.environment}"
+  name    = "wargaku-${var.environment}"
   region  = var.do_region
   version = data.digitalocean_kubernetes_versions.main[0].latest_version
 

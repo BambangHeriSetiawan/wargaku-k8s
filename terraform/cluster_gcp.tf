@@ -1,6 +1,6 @@
 resource "google_container_cluster" "main" {
   count    = var.cloud_provider == "gcp" ? 1 : 0
-  name     = "estathub-${var.environment}"
+  name     = "wargaku-${var.environment}"
   location = var.gcp_region
 
   # Create an empty cluster and manage the node pool separately so it can be

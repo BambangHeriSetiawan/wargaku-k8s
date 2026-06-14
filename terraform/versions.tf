@@ -44,6 +44,6 @@ terraform {
   # Terraform Cloud is free for single users:
   # backend "remote" {
   #   organization = "estathub"
-  #   workspaces { name = "estathub-prod" }
+  #   workspaces { name = "wargaku-prod" }
   # }
 }

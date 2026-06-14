@@ -104,12 +104,12 @@ civo apikey save <your-api-key>
 ### 2. Create Cluster (Civo example)
 
 ```bash
-civo kubernetes create estathub \
+civo kubernetes create wargaku \
   --size g4s.kube.medium \
   --nodes 1 \
   --wait
 
-civo kubernetes config estathub --save
+civo kubernetes config wargaku --save
 kubectl get nodes  # verify
 ```
 

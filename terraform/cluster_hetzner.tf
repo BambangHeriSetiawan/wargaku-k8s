@@ -1,12 +1,12 @@
 resource "hcloud_ssh_key" "main" {
   count      = var.cloud_provider == "hetzner" ? 1 : 0
-  name       = "estathub-${var.environment}"
+  name       = "wargaku-${var.environment}"
   public_key = file(var.hetzner_ssh_public_key_file)
 }
 
 resource "hcloud_firewall" "main" {
   count = var.cloud_provider == "hetzner" ? 1 : 0
-  name  = "estathub-${var.environment}"
+  name  = "wargaku-${var.environment}"
 
   rule {
     direction  = "in"
@@ -40,7 +40,7 @@ resource "hcloud_firewall" "main" {
 
 resource "hcloud_server" "main" {
   count        = var.cloud_provider == "hetzner" ? 1 : 0
-  name         = "estathub-${var.environment}"
+  name         = "wargaku-${var.environment}"
   server_type  = var.hetzner_server_type
   location     = var.hetzner_location
   image        = "ubuntu-24.04"

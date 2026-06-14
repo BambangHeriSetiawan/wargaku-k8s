@@ -1,6 +1,6 @@
 resource "civo_firewall" "main" {
   count                = var.cloud_provider == "civo" ? 1 : 0
-  name                 = "estathub-${var.environment}"
+  name                 = "wargaku-${var.environment}"
   region               = var.civo_region
   create_default_rules = false
 
@@ -50,7 +50,7 @@ resource "civo_firewall" "main" {
 
 resource "civo_kubernetes_cluster" "main" {
   count       = var.cloud_provider == "civo" ? 1 : 0
-  name        = "estathub-${var.environment}"
+  name        = "wargaku-${var.environment}"
   region      = var.civo_region
   firewall_id = civo_firewall.main[0].id
   cni         = "flannel"

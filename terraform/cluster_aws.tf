@@ -2,7 +2,7 @@
 
 resource "aws_iam_role" "eks_cluster" {
   count = var.cloud_provider == "aws" ? 1 : 0
-  name  = "estathub-${var.environment}-eks-cluster"
+  name  = "wargaku-${var.environment}-eks-cluster"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -24,7 +24,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 
 resource "aws_iam_role" "eks_nodes" {
   count = var.cloud_provider == "aws" ? 1 : 0
-  name  = "estathub-${var.environment}-eks-nodes"
+  name  = "wargaku-${var.environment}-eks-nodes"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -73,7 +73,7 @@ data "aws_subnets" "default" {
 
 resource "aws_eks_cluster" "main" {
   count    = var.cloud_provider == "aws" ? 1 : 0
-  name     = "estathub-${var.environment}"
+  name     = "wargaku-${var.environment}"
   role_arn = aws_iam_role.eks_cluster[0].arn
   version  = var.k8s_version != "" ? var.k8s_version : null
 
