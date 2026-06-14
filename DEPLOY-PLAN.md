@@ -174,7 +174,7 @@ kubectl apply -f k8s/monitoring/alertmanager/secret.yaml
 
 # postgres-exporter DSN
 kubectl create secret generic postgres-exporter-secret \
-  --from-literal=DATA_SOURCE_NAME="postgresql://estathub:<password>@postgres:5432/estathub?sslmode=disable" \
+  --from-literal=DATA_SOURCE_NAME="postgresql://wargaku:<password>@postgres:5432/wargaku?sslmode=disable" \
   -n wargaku
 ```
 
@@ -220,8 +220,8 @@ kubectl run migrate --image=ghcr.io/<your-org>/wargaku-go:latest \
   -n wargaku --restart=Never \
   --env="DB_HOST=postgres" \
   --env="DB_PORT=5432" \
-  --env="DB_NAME=estathub" \
-  --env="DB_USER=estathub" \
+  --env="DB_NAME=wargaku" \
+  --env="DB_USER=wargaku" \
   --env="DB_PASSWORD=<password>" \
   -- ./wargaku-go migrate-up
 

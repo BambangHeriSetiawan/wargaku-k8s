@@ -21,9 +21,9 @@ spec:
             - containerPort: 5432
           env:
             - name: POSTGRES_DB
-              value: estathub
+              value: wargaku
             - name: POSTGRES_USER
-              value: estathub
+              value: wargaku
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -40,7 +40,7 @@ spec:
               memory: 512Mi
           livenessProbe:
             exec:
-              command: ["pg_isready", "-U", "estathub"]
+              command: ["pg_isready", "-U", "wargaku"]
             initialDelaySeconds: 15
             periodSeconds: 10
           volumeMounts:

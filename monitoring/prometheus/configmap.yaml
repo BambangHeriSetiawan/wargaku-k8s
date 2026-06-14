@@ -180,7 +180,7 @@ data:
 
           - alert: PostgreSQLSlowQueries
             expr: |
-              rate(pg_stat_database_blk_read_time{datname="estathub_db"}[5m]) > 1000
+              rate(pg_stat_database_blk_read_time{datname="wargaku"}[5m]) > 1000
             for: 10m
             labels:
               severity: warning
@@ -190,9 +190,9 @@ data:
 
           - alert: PostgreSQLLowCacheHitRate
             expr: |
-              pg_stat_database_blks_hit{datname="estathub_db"}
+              pg_stat_database_blks_hit{datname="wargaku"}
               /
-              (pg_stat_database_blks_hit{datname="estathub_db"} + pg_stat_database_blks_read{datname="estathub_db"})
+              (pg_stat_database_blks_hit{datname="wargaku"} + pg_stat_database_blks_read{datname="wargaku"})
               * 100 < 90
             for: 15m
             labels:

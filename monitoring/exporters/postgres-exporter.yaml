@@ -45,5 +45,5 @@ spec:
       targetPort: 9187
 ---
 # kubectl create secret generic postgres-exporter-secret \
-#   --from-literal=DATA_SOURCE_NAME="postgresql://estathub:<password>@postgres:5432/estathub?sslmode=disable" \
+#   --from-literal=DATA_SOURCE_NAME="postgresql://wargaku:<password>@postgres:5432/wargaku?sslmode=disable" \
 #   -n wargaku

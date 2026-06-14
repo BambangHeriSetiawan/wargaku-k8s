@@ -483,7 +483,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "sum(pg_stat_database_numbackends{datname=\"estathub_db\"})",
+              "expr": "sum(pg_stat_database_numbackends{datname=\"wargaku\"})",
               "legendFormat": "active connections",
               "refId": "A"
             },
@@ -528,7 +528,7 @@ data:
           "targets": [
             {
               "datasource": { "type": "prometheus", "uid": "prometheus" },
-              "expr": "pg_stat_database_blks_hit{datname=\"estathub_db\"} / (pg_stat_database_blks_hit{datname=\"estathub_db\"} + pg_stat_database_blks_read{datname=\"estathub_db\"}) * 100",
+              "expr": "pg_stat_database_blks_hit{datname=\"wargaku\"} / (pg_stat_database_blks_hit{datname=\"wargaku\"} + pg_stat_database_blks_read{datname=\"wargaku\"}) * 100",
               "legendFormat": "cache hit %",
               "refId": "A"
             }
