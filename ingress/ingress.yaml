@@ -1,4 +1,4 @@
-# Replace estathub.id / api.estathub.id with your actual domains
+# Replace wargaku.id / api.wargaku.id with your actual domains
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -12,17 +12,17 @@ metadata:
 spec:
   tls:
     - hosts:
-        - estathub.id
-        - www.estathub.id
+        - wargaku.id
+        - www.wargaku.id
       secretName: wargaku-web-tls
     - hosts:
-        - api.estathub.id
+        - api.wargaku.id
       secretName: wargaku-api-tls
     - hosts:
-        - grafana.estathub.id
+        - grafana.wargaku.id
       secretName: wargaku-grafana-tls
   rules:
-    - host: estathub.id
+    - host: wargaku.id
       http:
         paths:
           - path: /
@@ -32,7 +32,7 @@ spec:
                 name: wargaku-web
                 port:
                   number: 80
-    - host: www.estathub.id
+    - host: www.wargaku.id
       http:
         paths:
           - path: /
@@ -42,7 +42,7 @@ spec:
                 name: wargaku-web
                 port:
                   number: 80
-    - host: api.estathub.id
+    - host: api.wargaku.id
       http:
         paths:
           - path: /
@@ -52,7 +52,7 @@ spec:
                 name: wargaku-api
                 port:
                   number: 80
-    - host: grafana.estathub.id
+    - host: grafana.wargaku.id
       http:
         paths:
           - path: /

@@ -27,7 +27,7 @@ spec:
             # Add NEXT_PUBLIC_* vars here — they are baked in at build time,
             # so rebuild the image if these change.
             - name: NEXT_PUBLIC_API_URL
-              value: https://api.estathub.id   # your API domain
+              value: https://api.wargaku.id   # your API domain
           resources:
             requests:
               cpu: 100m

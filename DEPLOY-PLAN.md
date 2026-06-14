@@ -83,7 +83,7 @@ ESTATHUB/
     │       └── cadvisor.yaml               ← DaemonSet
     └── ingress/
         ├── cert-issuer.yaml                ← Let's Encrypt ClusterIssuer
-        └── ingress.yaml                    ← web + api + grafana.estathub.id
+        └── ingress.yaml                    ← web + api + grafana.wargaku.id
 ```
 
 ---
@@ -207,9 +207,9 @@ Point your domain's A record to the LoadBalancer IP:
 ```bash
 kubectl get svc -n ingress-nginx
 # Note the EXTERNAL-IP, then set DNS:
-# estathub.id         → A → <EXTERNAL-IP>
-# api.estathub.id     → A → <EXTERNAL-IP>
-# grafana.estathub.id → A → <EXTERNAL-IP>
+# wargaku.id         → A → <EXTERNAL-IP>
+# api.wargaku.id     → A → <EXTERNAL-IP>
+# grafana.wargaku.id → A → <EXTERNAL-IP>
 ```
 
 ### 8. Run DB Migrations
@@ -237,7 +237,7 @@ kubectl delete pod migrate -n wargaku
 kubectl get pods -n wargaku          # all pods Running
 kubectl get ingress -n wargaku        # check ADDRESS
 kubectl describe certificate -n wargaku  # TLS issued
-curl https://api.estathub.id/health   # API health check
+curl https://api.wargaku.id/health   # API health check
 ```
 
 ---

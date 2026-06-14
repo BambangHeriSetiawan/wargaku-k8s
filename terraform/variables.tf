@@ -32,9 +32,9 @@ variable "k8s_version" {
 }
 
 variable "domain" {
-  description = "Root domain for the app (e.g. estathub.id)."
+  description = "Root domain for the app (e.g. wargaku.id)."
   type        = string
-  default     = "estathub.id"
+  default     = "wargaku.id"
 }
 
 variable "alert_email" {

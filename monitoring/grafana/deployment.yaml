@@ -29,7 +29,7 @@ spec:
             - name: GF_USERS_ALLOW_SIGN_UP
               value: "false"
             - name: GF_SERVER_ROOT_URL
-              value: https://grafana.estathub.id
+              value: https://grafana.wargaku.id
             - name: GF_SMTP_ENABLED
               value: "false"
             - name: GF_ALERTING_ENABLED
