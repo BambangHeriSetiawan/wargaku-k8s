@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wargaku-api
+  namespace: estathub
+spec:
+  selector:
+    app: wargaku-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080

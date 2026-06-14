@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: estathub-web
+  namespace: estathub
+  labels:
+    app: estathub-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: estathub-web
+  template:
+    metadata:
+      labels:
+        app: estathub-web
+    spec:
+      containers:
+        - name: web
+          image: your-registry/estathub-web:latest  # replace with your image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: production
+            # Add NEXT_PUBLIC_* vars here — they are baked in at build time,
+            # so rebuild the image if these change.
+            - name: NEXT_PUBLIC_API_URL
+              value: https://api.estathub.id   # your API domain
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: estathub-web
+  namespace: estathub
+spec:
+  selector:
+    app: estathub-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000

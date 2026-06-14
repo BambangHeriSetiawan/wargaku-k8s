@@ -1,0 +1,67 @@
+# Alertmanager reads its config from a file — env vars are NOT expanded natively.
+# Sensitive values (SMTP password, emails) come from the alertmanager-secrets Secret
+# and are substituted by the init container before startup.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config-template
+  namespace: estathub
+data:
+  alertmanager.yml.tmpl: |
+    global:
+      resolve_timeout: 5m
+      smtp_smarthost: '${SMTP_HOST}'
+      smtp_from: '${GRAFANA_ALERT_EMAIL}'
+      smtp_auth_username: '${SMTP_USER}'
+      smtp_auth_password: '${SMTP_PASSWORD}'
+      smtp_require_tls: true
+
+    route:
+      group_by: ['alertname', 'severity']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      receiver: 'default'
+      routes:
+        - match:
+            severity: critical
+          receiver: 'critical'
+          repeat_interval: 1h
+        - match:
+            team: payment
+          receiver: 'payment-team'
+        - match:
+            team: infra
+          receiver: 'infra-team'
+
+    receivers:
+      - name: 'default'
+        email_configs:
+          - to: '${ALERT_EMAIL}'
+            send_resolved: true
+            headers:
+              Subject: '[EstateHub] {{ .GroupLabels.alertname }} — {{ .Status | toUpper }}'
+
+      - name: 'critical'
+        email_configs:
+          - to: '${ONCALL_EMAIL}'
+            send_resolved: true
+            headers:
+              Subject: '[CRITICAL][EstateHub] {{ .GroupLabels.alertname }}'
+
+      - name: 'payment-team'
+        email_configs:
+          - to: '${PAYMENT_TEAM_EMAIL}'
+            send_resolved: true
+
+      - name: 'infra-team'
+        email_configs:
+          - to: '${INFRA_TEAM_EMAIL}'
+            send_resolved: true
+
+    inhibit_rules:
+      - source_match:
+          severity: 'critical'
+        target_match:
+          severity: 'warning'
+        equal: ['alertname', 'instance']

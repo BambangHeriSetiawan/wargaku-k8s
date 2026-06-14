@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wargaku-api
+  namespace: estathub
+  labels:
+    app: wargaku-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wargaku-api
+  template:
+    metadata:
+      labels:
+        app: wargaku-api
+    spec:
+      containers:
+        - name: api
+          image: your-registry/wargaku-go:latest  # replace with your image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: production
+            - name: APP_PORT
+              value: "8080"
+            - name: APP_NAME
+              value: EstateHub API
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_PASSWORD
+            - name: DB_SSL_MODE
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_SSL_MODE
+            - name: DB_MAX_CONNS
+              value: "10"
+            - name: DB_MIN_CONNS
+              value: "2"
+            - name: REDIS_ADDR
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: REDIS_ADDR
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: REDIS_PASSWORD
+            - name: REDIS_DB
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: REDIS_DB
+            - name: FIREBASE_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: FIREBASE_PROJECT_ID
+            - name: FIREBASE_CREDENTIALS_FILE
+              value: /etc/firebase/firebase-service-account.json
+            - name: MIDTRANS_SERVER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MIDTRANS_SERVER_KEY
+            - name: MIDTRANS_CLIENT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MIDTRANS_CLIENT_KEY
+            - name: MIDTRANS_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MIDTRANS_ENV
+            - name: STORAGE_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: STORAGE_BUCKET
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: SMTP_HOST
+            - name: SMTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: SMTP_PORT
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: SMTP_USER
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: SMTP_PASSWORD
+            - name: SMTP_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: SMTP_FROM
+            - name: RATE_LIMIT_ADMIN
+              value: "1000"
+            - name: RATE_LIMIT_RESIDENT
+              value: "500"
+            - name: RATE_LIMIT_SUPER_ADMIN
+              value: "2000"
+            - name: RATE_LIMIT_AUTH
+              value: "5"
+          volumeMounts:
+            - name: firebase-creds
+              mountPath: /etc/firebase
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: firebase-creds
+          secret:
+            secretName: firebase-credentials

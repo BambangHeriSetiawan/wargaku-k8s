@@ -1,0 +1,297 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: estathub
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      scrape_timeout: 10s
+      external_labels:
+        environment: 'production'
+        project: 'estathub'
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: ['alertmanager:9093']
+
+    rule_files:
+      - '/etc/prometheus/rules/*.yml'
+
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      - job_name: 'estathub-api'
+        static_configs:
+          - targets: ['wargaku-api:8080']
+        metrics_path: '/metrics'
+        scrape_interval: 10s
+
+      - job_name: 'postgres'
+        static_configs:
+          - targets: ['postgres-exporter:9187']
+        scrape_interval: 30s
+
+      - job_name: 'redis'
+        static_configs:
+          - targets: ['redis-exporter:9121']
+        scrape_interval: 15s
+
+      - job_name: 'node'
+        static_configs:
+          - targets: ['node-exporter:9100']
+        scrape_interval: 30s
+
+      - job_name: 'cadvisor'
+        static_configs:
+          - targets: ['cadvisor:8080']
+        scrape_interval: 15s
+
+  api_alerts.yml: |
+    groups:
+      - name: estathub_api
+        interval: 30s
+        rules:
+          - alert: APIDown
+            expr: up{job="estathub-api"} == 0
+            for: 1m
+            labels:
+              severity: critical
+              team: backend
+            annotations:
+              summary: "EstateHub API is down"
+              description: "The API has been unreachable for more than 1 minute."
+
+          - alert: APIHighErrorRate
+            expr: |
+              sum(rate(http_requests_total{job="estathub-api", status=~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="estathub-api"}[5m])) * 100 > 5
+            for: 5m
+            labels:
+              severity: critical
+              team: backend
+            annotations:
+              summary: "High HTTP 5xx error rate ({{ $value | humanize }}%)"
+              description: "5xx rate has been above 5% for 5 minutes."
+
+          - alert: APIHighClientErrorRate
+            expr: |
+              sum(rate(http_requests_total{job="estathub-api", status=~"4.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="estathub-api"}[5m])) * 100 > 20
+            for: 10m
+            labels:
+              severity: warning
+              team: backend
+            annotations:
+              summary: "High HTTP 4xx rate ({{ $value | humanize }}%)"
+              description: "4xx rate above 20% — possible client-side issue or bad request spike."
+
+          - alert: APISlowResponseP95
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(http_request_duration_seconds_bucket{job="estathub-api"}[5m])) by (le)
+              ) > 2
+            for: 10m
+            labels:
+              severity: warning
+              team: backend
+            annotations:
+              summary: "P95 API latency is {{ $value | humanizeDuration }}"
+              description: "95th-percentile response time exceeded 2s for 10 minutes."
+
+          - alert: APISlowResponseP99
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(http_request_duration_seconds_bucket{job="estathub-api"}[5m])) by (le)
+              ) > 5
+            for: 5m
+            labels:
+              severity: critical
+              team: backend
+            annotations:
+              summary: "P99 API latency is {{ $value | humanizeDuration }}"
+              description: "99th-percentile response time exceeded 5s."
+
+          - alert: TooManyGoroutines
+            expr: go_goroutines{job="estathub-api"} > 5000
+            for: 5m
+            labels:
+              severity: warning
+              team: backend
+            annotations:
+              summary: "Goroutine count is {{ $value }}"
+              description: "Abnormally high goroutine count — possible goroutine leak."
+
+          - alert: HighGoHeapUsage
+            expr: go_memstats_heap_inuse_bytes{job="estathub-api"} > 512 * 1024 * 1024
+            for: 10m
+            labels:
+              severity: warning
+              team: backend
+            annotations:
+              summary: "Go heap usage is {{ $value | humanize1024 }}B"
+              description: "Heap in-use exceeded 512 MiB for 10 minutes."
+
+          - alert: PaymentWebhookErrors
+            expr: |
+              increase(estathub_payments_processed_total{status="failed"}[1h]) > 10
+            for: 0m
+            labels:
+              severity: warning
+              team: payment
+            annotations:
+              summary: "{{ $value }} payment failures in the last hour"
+              description: "Check Midtrans webhook handler and gateway logs."
+
+  infra_alerts.yml: |
+    groups:
+      - name: estathub_infrastructure
+        interval: 60s
+        rules:
+          - alert: PostgreSQLDown
+            expr: pg_up == 0
+            for: 1m
+            labels:
+              severity: critical
+              team: infra
+            annotations:
+              summary: "PostgreSQL is down"
+              description: "postgres_exporter cannot reach the database."
+
+          - alert: PostgreSQLTooManyConnections
+            expr: |
+              sum(pg_stat_database_numbackends) by (datname)
+              /
+              pg_settings_max_connections * 100 > 80
+            for: 5m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "PostgreSQL connection usage at {{ $value | humanize }}%"
+              description: "Connection pool is above 80% capacity."
+
+          - alert: PostgreSQLSlowQueries
+            expr: |
+              rate(pg_stat_database_blk_read_time{datname="estathub_db"}[5m]) > 1000
+            for: 10m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "Slow PostgreSQL block reads on {{ $labels.datname }}"
+
+          - alert: PostgreSQLLowCacheHitRate
+            expr: |
+              pg_stat_database_blks_hit{datname="estathub_db"}
+              /
+              (pg_stat_database_blks_hit{datname="estathub_db"} + pg_stat_database_blks_read{datname="estathub_db"})
+              * 100 < 90
+            for: 15m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "PostgreSQL cache hit rate is {{ $value | humanize }}%"
+              description: "Buffer cache hit rate dropped below 90%."
+
+          - alert: RedisDown
+            expr: redis_up == 0
+            for: 1m
+            labels:
+              severity: critical
+              team: infra
+            annotations:
+              summary: "Redis is down"
+              description: "redis_exporter cannot reach Redis. Rate limiting and caching will fail."
+
+          - alert: RedisHighMemoryUsage
+            expr: |
+              redis_memory_used_bytes / redis_memory_max_bytes * 100 > 80
+            for: 5m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "Redis memory at {{ $value | humanize }}%"
+              description: "Redis is using over 80% of its configured maxmemory."
+
+          - alert: RedisHighKeyEvictionRate
+            expr: rate(redis_evicted_keys_total[5m]) > 100
+            for: 5m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "Redis evicting {{ $value | humanize }} keys/sec"
+              description: "High eviction rate suggests memory pressure."
+
+          - alert: HighCPUUsage
+            expr: |
+              100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+            for: 10m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "CPU usage is {{ $value | humanize }}% on {{ $labels.instance }}"
+
+          - alert: HighMemoryUsage
+            expr: |
+              (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 90
+            for: 5m
+            labels:
+              severity: critical
+              team: infra
+            annotations:
+              summary: "Memory usage is {{ $value | humanize }}% on {{ $labels.instance }}"
+
+          - alert: LowDiskSpace
+            expr: |
+              (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 85
+            for: 5m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "Disk usage is {{ $value | humanize }}% on {{ $labels.instance }}"
+
+          - alert: CriticalDiskSpace
+            expr: |
+              (1 - node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 95
+            for: 1m
+            labels:
+              severity: critical
+              team: infra
+            annotations:
+              summary: "CRITICAL: Disk usage is {{ $value | humanize }}%"
+              description: "Server is almost out of disk space."
+
+          - alert: ContainerHighCPU
+            expr: |
+              rate(container_cpu_usage_seconds_total{name=~"estathub.*"}[5m]) * 100 > 80
+            for: 10m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "Container {{ $labels.name }} CPU at {{ $value | humanize }}%"
+
+          - alert: ContainerHighMemory
+            expr: |
+              container_memory_usage_bytes{name=~"estathub.*"}
+              /
+              container_spec_memory_limit_bytes{name=~"estathub.*"} * 100 > 85
+            for: 5m
+            labels:
+              severity: warning
+              team: infra
+            annotations:
+              summary: "Container {{ $labels.name }} memory at {{ $value | humanize }}%"

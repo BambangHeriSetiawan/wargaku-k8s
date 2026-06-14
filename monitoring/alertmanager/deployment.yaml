@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: estathub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      initContainers:
+        # Substitutes env vars from Secret into the config template before startup
+        - name: config-init
+          image: alpine:3.19
+          command: ["/bin/sh", "-c", "apk add --no-cache gettext && envsubst < /tmpl/alertmanager.yml.tmpl > /config/alertmanager.yml"]
+          envFrom:
+            - secretRef:
+                name: alertmanager-secrets
+          volumeMounts:
+            - name: config-template
+              mountPath: /tmpl
+            - name: config-out
+              mountPath: /config
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:v0.27.0
+          args:
+            - --config.file=/etc/alertmanager/alertmanager.yml
+            - --storage.path=/alertmanager
+          ports:
+            - containerPort: 9093
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: config-out
+              mountPath: /etc/alertmanager
+            - name: data
+              mountPath: /alertmanager
+      volumes:
+        - name: config-template
+          configMap:
+            name: alertmanager-config-template
+        - name: config-out
+          emptyDir: {}
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: estathub
+spec:
+  selector:
+    app: alertmanager
+  ports:
+    - port: 9093
+      targetPort: 9093

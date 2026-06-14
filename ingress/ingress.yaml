@@ -1,0 +1,64 @@
+# Replace estathub.id / api.estathub.id with your actual domains
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: estathub-ingress
+  namespace: estathub
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+spec:
+  tls:
+    - hosts:
+        - estathub.id
+        - www.estathub.id
+      secretName: estathub-web-tls
+    - hosts:
+        - api.estathub.id
+      secretName: estathub-api-tls
+    - hosts:
+        - grafana.estathub.id
+      secretName: estathub-grafana-tls
+  rules:
+    - host: estathub.id
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: estathub-web
+                port:
+                  number: 80
+    - host: www.estathub.id
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: estathub-web
+                port:
+                  number: 80
+    - host: api.estathub.id
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wargaku-api
+                port:
+                  number: 80
+    - host: grafana.estathub.id
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
