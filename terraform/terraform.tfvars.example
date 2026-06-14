@@ -1,0 +1,16 @@
+# Copy this file to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored — never commit it.
+
+civo_token  = "your-civo-api-token"   # https://dashboard.civo.com/security
+region      = "SGP1"                   # Singapore — closest to Indonesia
+environment = "prod"
+
+# Node sizing
+node_size  = "g4s.kube.medium"        # 2 vCPU, 4 GB RAM — $10/month
+node_count = 1
+
+# Restrict K8s API access to your IP only (highly recommended)
+admin_cidrs = ["YOUR.PUBLIC.IP.HERE/32"]
+
+domain      = "estathub.id"
+alert_email = "setiawan.heri.bambang@gmail.com"
