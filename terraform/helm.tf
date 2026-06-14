@@ -5,11 +5,16 @@ resource "kubernetes_namespace" "estathub" {
     name = "estathub"
   }
 
-  depends_on = [civo_kubernetes_cluster.main]
+  depends_on = [
+    local_sensitive_file.kubeconfig_civo,
+    local_sensitive_file.kubeconfig_gcp,
+    local_sensitive_file.kubeconfig_aws,
+    local_sensitive_file.kubeconfig_do,
+  ]
 }
 
 # ── nginx-ingress ─────────────────────────────────────────────────────────────
-# Provisions a Civo LoadBalancer automatically (~free on Civo, 1 included)
+# Provisions a cloud LoadBalancer automatically.
 
 resource "helm_release" "ingress_nginx" {
   name             = "ingress-nginx"
@@ -40,7 +45,12 @@ resource "helm_release" "ingress_nginx" {
     value = "90Mi"
   }
 
-  depends_on = [civo_kubernetes_cluster.main]
+  depends_on = [
+    local_sensitive_file.kubeconfig_civo,
+    local_sensitive_file.kubeconfig_gcp,
+    local_sensitive_file.kubeconfig_aws,
+    local_sensitive_file.kubeconfig_do,
+  ]
 }
 
 # ── cert-manager ──────────────────────────────────────────────────────────────

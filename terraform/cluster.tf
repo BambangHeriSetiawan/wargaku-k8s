@@ -1,6 +1,7 @@
 resource "civo_firewall" "main" {
+  count                = var.cloud_provider == "civo" ? 1 : 0
   name                 = "estathub-${var.environment}"
-  region               = var.region
+  region               = var.civo_region
   create_default_rules = false
 
   # Public web traffic
@@ -48,9 +49,10 @@ resource "civo_firewall" "main" {
 }
 
 resource "civo_kubernetes_cluster" "main" {
+  count       = var.cloud_provider == "civo" ? 1 : 0
   name        = "estathub-${var.environment}"
-  region      = var.region
-  firewall_id = civo_firewall.main.id
+  region      = var.civo_region
+  firewall_id = civo_firewall.main[0].id
   cni         = "flannel"
 
   # Set only when overriding the default
@@ -63,9 +65,9 @@ resource "civo_kubernetes_cluster" "main" {
   }
 }
 
-# Write kubeconfig to disk so kubectl and helm can pick it up
-resource "local_sensitive_file" "kubeconfig" {
-  content         = civo_kubernetes_cluster.main.kubeconfig
+resource "local_sensitive_file" "kubeconfig_civo" {
+  count           = var.cloud_provider == "civo" ? 1 : 0
+  content         = civo_kubernetes_cluster.main[0].kubeconfig
   filename        = "${path.module}/kubeconfig.yaml"
   file_permission = "0600"
 }
