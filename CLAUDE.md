@@ -49,18 +49,47 @@ kubectl logs migrate -n estathub && kubectl delete pod migrate -n estathub
 
 ## Terraform (cluster provisioning)
 
-Targets **Civo Cloud, SGP1 (Singapore)**. Provisions the cluster, firewall, nginx-ingress, and cert-manager via Helm.
+Supports four cloud providers selected via `cloud_provider` in `terraform.tfvars`. All provision nginx-ingress and cert-manager via Helm and write `kubeconfig.yaml` to `terraform/`.
 
 ```bash
 cd terraform
-cp terraform.tfvars.example terraform.tfvars   # fill in civo_token and admin_cidrs
+cp terraform.tfvars.example terraform.tfvars   # set cloud_provider + fill the matching section
 terraform init
 terraform plan
 terraform apply
 export KUBECONFIG=$(pwd)/kubeconfig.yaml       # written by terraform apply
 ```
 
-Required provider versions: Terraform ≥ 1.7, civo ~>1.0, helm ~>2.14, kubernetes ~>2.31.
+**Provider options** (`cloud_provider` value → what gets created):
+
+| Value | Provider | Cluster type | Node default | ~Cost |
+|---|---|---|---|---|
+| `civo` (default) | Civo Cloud SGP1 | k3s managed | `g4s.kube.medium` 2vCPU/4GB | $10/mo |
+| `gcp` | GKE, `asia-southeast1-a` | Zonal GKE | `e2-medium` 2vCPU/4GB | $30/mo |
+| `aws` | EKS, `ap-southeast-1` | EKS + managed node group | `t3.medium` 2vCPU/4GB | $30/mo+ |
+| `do` | DigitalOcean `sgp1` | DOKS | `s-2vcpu-4gb` 2vCPU/4GB | $24/mo |
+
+**Per-provider prerequisites:**
+- **Civo** — `civo_token` + optionally tighten `admin_cidrs`
+- **GCP** — `gcp_project` + either `gcp_credentials_file` or `gcloud auth application-default login`; install `gke-gcloud-auth-plugin` (`gcloud components install gke-gcloud-auth-plugin`)
+- **AWS** — `aws_access_key`/`aws_secret_key` or ambient env vars (`AWS_ACCESS_KEY_ID`, etc.); install AWS CLI (`brew install awscli`); uses the default VPC
+- **DigitalOcean** — `do_token`; DOKS version is auto-resolved to latest stable
+
+**Terraform files:**
+
+| File | Purpose |
+|---|---|
+| `providers.tf` | All four cloud providers + kubernetes/helm (file-based kubeconfig) |
+| `versions.tf` | Provider version pins (Terraform ≥ 1.7) |
+| `variables.tf` | `cloud_provider` + shared + per-provider variables |
+| `cluster.tf` | Civo firewall + cluster (`count = var.cloud_provider == "civo" ? 1 : 0`) |
+| `cluster_gcp.tf` | GKE cluster + node pool |
+| `cluster_aws.tf` | IAM roles + EKS cluster + managed node group |
+| `cluster_do.tf` | DOKS cluster with auto-resolved version |
+| `helm.tf` | `kubernetes_namespace`, nginx-ingress, cert-manager, ClusterIssuer |
+| `outputs.tf` | Uses `try()` to resolve active cluster across all providers |
+
+**How multi-cloud works** — each cluster file uses `count = var.cloud_provider == "<x>" ? 1 : 0`, so only the active provider's resources are created. Each cluster file writes `kubeconfig.yaml` (named `kubeconfig_<provider>` to avoid conflicts). The kubernetes/helm providers use `config_path = "${path.module}/kubeconfig.yaml"` so they work with any provider. `helm.tf` depends on all four kubeconfig resources; inactive ones (count=0) are no-ops.
 
 ## Secrets setup (before first deploy)
 
