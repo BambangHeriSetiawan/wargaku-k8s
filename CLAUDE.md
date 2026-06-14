@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Kubernetes manifests and Terraform IaC for **EstahHub** — an Indonesian real estate platform (`wargaku.id`). The application stack is:
+Kubernetes manifests and Terraform IaC for **Wargaku** — an Indonesian real estate platform (`wargaku.id`). The application stack is:
 
 - **wargaku-go** — Go Fiber v2 backend API on port 8080 (image: `your-registry/wargaku-go:latest`)
 - **wargaku-web** — Next.js 16 standalone frontend on port 3000 (image: `your-registry/wargaku-web:latest`)
@@ -81,7 +81,7 @@ export KUBECONFIG=$(pwd)/kubeconfig.yaml       # written by terraform apply
 
 | File | Purpose |
 |---|---|
-| `providers.tf` | All four cloud providers + kubernetes/helm (file-based kubeconfig) |
+| `providers.tf` | All five cloud providers + kubernetes/helm (file-based kubeconfig) |
 | `versions.tf` | Provider version pins (Terraform ≥ 1.7) |
 | `variables.tf` | `cloud_provider` + shared + per-provider variables |
 | `cluster.tf` | Civo firewall + cluster (`count = var.cloud_provider == "civo" ? 1 : 0`) |
